@@ -1,0 +1,37 @@
+[project]
+name = "a3-ia-retail"
+version = "0.1.0"
+description = "Sistema de recomendacao de produtos por associacao de compras usando Online Retail."
+readme = "README.md"
+requires-python = ">=3.10,<3.14"
+dependencies = [
+    "matplotlib>=3.8",
+    "mlxtend>=0.23",
+    "openpyxl>=3.1",
+    "pandas>=2.2",
+    "scikit-learn>=1.4",
+    "seaborn>=0.13",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+a3-retail = "a3_ia_retail.pipeline:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
