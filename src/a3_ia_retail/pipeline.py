@@ -3,6 +3,7 @@ from pathlib import Path
 
 from a3_ia_retail.association import generate_association_rules
 from a3_ia_retail.basket import create_basket
+from a3_ia_retail.clustering import kmeans_product_recommendations
 from a3_ia_retail.comparison import compare_methods, summarize_rules
 from a3_ia_retail.config import PROCESSED_DATA_DIR, TABLES_DIR
 from a3_ia_retail.data_loading import basic_profile, load_online_retail
@@ -15,6 +16,8 @@ def run_pipeline(
     input_path: str | Path,
     min_support: float = 0.02,
     min_confidence: float = 0.2,
+    kmeans_clusters: int = 12,
+    kmeans_components: int = 50,
 ) -> None:
     TABLES_DIR.mkdir(parents=True, exist_ok=True)
     PROCESSED_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -45,10 +48,29 @@ def run_pipeline(
     similarity = product_similarity_recommendations(basket)
     similarity.to_csv(TABLES_DIR / "similarity_recommendations.csv", index=False)
 
+    kmeans_clusters_df, kmeans_recommendations, kmeans_time = kmeans_product_recommendations(
+        basket,
+        n_clusters=kmeans_clusters,
+        n_components=kmeans_components,
+    )
+    kmeans_clusters_df.to_csv(TABLES_DIR / "kmeans_product_clusters.csv", index=False)
+    kmeans_recommendations.to_csv(TABLES_DIR / "kmeans_recommendations.csv", index=False)
+
     comparison = compare_methods(
         [
             summarize_rules("apriori", apriori_rules, apriori_time),
             summarize_rules("fpgrowth", fpgrowth_rules, fpgrowth_time),
+            {
+                "method": "kmeans",
+                "elapsed_seconds": kmeans_time,
+                "rules": len(kmeans_recommendations),
+                "avg_lift": None,
+                "avg_confidence": None,
+                "avg_support": None,
+                "avg_similarity": kmeans_recommendations["similarity"].mean()
+                if not kmeans_recommendations.empty
+                else 0.0,
+            },
             {
                 "method": "similarity",
                 "elapsed_seconds": None,
@@ -56,6 +78,7 @@ def run_pipeline(
                 "avg_lift": None,
                 "avg_confidence": None,
                 "avg_support": None,
+                "avg_similarity": similarity["similarity"].mean() if not similarity.empty else 0.0,
             },
         ]
     )
@@ -69,12 +92,20 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--input", required=True, help="Caminho para o CSV/XLSX da base Online Retail.")
     parser.add_argument("--min-support", type=float, default=0.02)
     parser.add_argument("--min-confidence", type=float, default=0.2)
+    parser.add_argument("--kmeans-clusters", type=int, default=12)
+    parser.add_argument("--kmeans-components", type=int, default=50)
     return parser
 
 
 def main() -> None:
     args = build_parser().parse_args()
-    run_pipeline(args.input, min_support=args.min_support, min_confidence=args.min_confidence)
+    run_pipeline(
+        args.input,
+        min_support=args.min_support,
+        min_confidence=args.min_confidence,
+        kmeans_clusters=args.kmeans_clusters,
+        kmeans_components=args.kmeans_components,
+    )
 
 
 if __name__ == "__main__":

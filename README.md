@@ -5,6 +5,7 @@ Projeto em Python para recomendar produtos do dataset **Online Retail** usando:
 - regras de associacao com Apriori;
 - regras de associacao com FP-Growth;
 - similaridade entre produtos com base em coocorrencia nos pedidos.
+- agrupamento de produtos com K-Means.
 
 ## Objetivo
 
@@ -74,8 +75,9 @@ a3-retail --input data/raw/online_retail.csv
 6. Aplicar Apriori e gerar regras com support, confidence e lift.
 7. Aplicar FP-Growth e gerar regras equivalentes.
 8. Calcular similaridade entre produtos.
-9. Comparar tempo, quantidade de regras, lift medio, confianca media e exemplos de recomendacao.
-10. Montar relatorio e apresentacao.
+9. Aplicar K-Means para agrupar produtos por padrao de compra.
+10. Comparar tempo, quantidade de regras/recomendacoes, lift medio, confianca media e similaridade media.
+11. Montar relatorio e apresentacao.
 
 ## Saidas geradas
 
@@ -87,5 +89,7 @@ A pipeline salva arquivos em `reports/tables/`:
 - `cleaning_summary.csv`
 - `apriori_rules.csv`
 - `fpgrowth_rules.csv`
+- `kmeans_product_clusters.csv`
+- `kmeans_recommendations.csv`
 - `similarity_recommendations.csv`
 - `method_comparison.csv`

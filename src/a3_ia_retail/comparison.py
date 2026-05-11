@@ -16,6 +16,7 @@ def summarize_rules(method: str, rules: pd.DataFrame, elapsed_seconds: float) ->
             "avg_lift": 0.0,
             "avg_confidence": 0.0,
             "avg_support": 0.0,
+            "avg_similarity": None,
         }
 
     return {
@@ -25,5 +26,5 @@ def summarize_rules(method: str, rules: pd.DataFrame, elapsed_seconds: float) ->
         "avg_lift": float(rules["lift"].mean()),
         "avg_confidence": float(rules["confidence"].mean()),
         "avg_support": float(rules["support"].mean()),
+        "avg_similarity": None,
     }
-
