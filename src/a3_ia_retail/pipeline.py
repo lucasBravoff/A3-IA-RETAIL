@@ -9,7 +9,6 @@ from a3_ia_retail.config import PROCESSED_DATA_DIR, TABLES_DIR
 from a3_ia_retail.data_loading import basic_profile, load_online_retail
 from a3_ia_retail.eda import build_eda_tables
 from a3_ia_retail.preprocessing import clean_online_retail
-from a3_ia_retail.similarity import product_similarity_recommendations
 
 
 def run_pipeline(
@@ -45,9 +44,6 @@ def run_pipeline(
     )
     fpgrowth_rules.to_csv(TABLES_DIR / "fpgrowth_rules.csv", index=False)
 
-    similarity = product_similarity_recommendations(basket)
-    similarity.to_csv(TABLES_DIR / "similarity_recommendations.csv", index=False)
-
     kmeans_clusters_df, kmeans_recommendations, kmeans_time = kmeans_product_recommendations(
         basket,
         n_clusters=kmeans_clusters,
@@ -67,18 +63,9 @@ def run_pipeline(
                 "avg_lift": None,
                 "avg_confidence": None,
                 "avg_support": None,
-                "avg_similarity": kmeans_recommendations["similarity"].mean()
+                "avg_recommendation_score": kmeans_recommendations["recommendation_score"].mean()
                 if not kmeans_recommendations.empty
                 else 0.0,
-            },
-            {
-                "method": "similarity",
-                "elapsed_seconds": None,
-                "rules": len(similarity),
-                "avg_lift": None,
-                "avg_confidence": None,
-                "avg_support": None,
-                "avg_similarity": similarity["similarity"].mean() if not similarity.empty else 0.0,
             },
         ]
     )

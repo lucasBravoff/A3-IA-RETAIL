@@ -4,7 +4,7 @@ import pandas as pd
 from scipy.sparse import csr_matrix
 from sklearn.cluster import KMeans
 from sklearn.decomposition import TruncatedSVD
-from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.metrics.pairwise import cosine_distances
 from sklearn.preprocessing import StandardScaler
 
 
@@ -80,26 +80,26 @@ def _recommend_within_clusters(
             continue
 
         cluster_embeddings = embeddings[cluster_positions]
-        scores = cosine_similarity(cluster_embeddings)
+        scores = 1 - cosine_distances(cluster_embeddings)
         cluster_products = product_index[cluster_positions]
 
         for local_index, product in enumerate(cluster_products):
             related_scores = pd.Series(scores[local_index], index=cluster_products).drop(index=product)
             related_scores = related_scores.sort_values(ascending=False).head(top_n)
-            for recommended_product, similarity in related_scores.items():
+            for recommended_product, score in related_scores.items():
                 rows.append(
                     {
                         "product": product,
                         "recommended_product": recommended_product,
                         "cluster": cluster,
-                        "similarity": similarity,
+                        "recommendation_score": score,
                     }
                 )
 
     if not rows:
-        return pd.DataFrame(columns=["product", "recommended_product", "cluster", "similarity"])
+        return pd.DataFrame(columns=["product", "recommended_product", "cluster", "recommendation_score"])
 
     return pd.DataFrame(rows).sort_values(
-        ["cluster", "product", "similarity"],
+        ["cluster", "product", "recommendation_score"],
         ascending=[True, True, False],
     )

@@ -23,5 +23,11 @@ def test_kmeans_product_recommendations_returns_clusters_and_recommendations():
 
     assert len(clusters) == 4
     assert set(clusters.columns) == {"product", "cluster", "distance_to_centroid"}
+    assert set(recommendations.columns) == {
+        "product",
+        "recommended_product",
+        "cluster",
+        "recommendation_score",
+    }
     assert not recommendations.empty
     assert elapsed >= 0
